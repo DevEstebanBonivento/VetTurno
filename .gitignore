@@ -1,0 +1,34 @@
+# Byte-order mark
+*.bom
+
+# Maven
+target/
+.classpath
+.project
+.settings/
+.m2
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Class files
+*.class
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+
+# Local properties
+application-local.properties
+.env
