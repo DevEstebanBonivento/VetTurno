@@ -155,6 +155,13 @@ de cada petición.
 | 13 | Segundo intento con mismo veterinario y horario | 400; se conserva una sola cita | ✅ |
 | 14 | Filtro de citas por veterinario | 200 y solo coincidencias | ✅ |
 | 15 | Reinicio y prueba desde Swagger con Authorize | Datos persisten y flujo protegido funciona | ✅ |
+## Evidencias
+
+### Swagger con Authorize
+![Swagger UI con VetTurno y botón Authorize](evidencias/swagger-authorize.png)
+
+### Ejecución desde cero siguiendo este README
+![Ejecución exitosa del proyecto](evidencias/ejecucion-desde-cero.png)
 
 ## Nota sobre uso de IA
 
