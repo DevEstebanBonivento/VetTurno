@@ -3,7 +3,6 @@ package com.DEVSenior.vetturno.controller;
 import com.DEVSenior.vetturno.dto.MascotaDTO;
 import com.DEVSenior.vetturno.dto.MascotaRequest;
 import com.DEVSenior.vetturno.service.MascotaService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +13,11 @@ import java.util.List;
 @RequestMapping("/api/mascotas")
 public class MascotaController {
 
-    @Autowired
-    private MascotaService mascotaService;
+    private final MascotaService mascotaService;
+
+    public MascotaController(MascotaService mascotaService) {
+        this.mascotaService = mascotaService;
+    }
 
     @PostMapping
     public ResponseEntity<MascotaDTO> create(@RequestBody MascotaRequest request) {

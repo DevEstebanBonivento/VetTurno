@@ -2,11 +2,11 @@ package com.DEVSenior.vetturno.service;
 
 import com.DEVSenior.vetturno.dto.MascotaDTO;
 import com.DEVSenior.vetturno.dto.MascotaRequest;
+import com.DEVSenior.vetturno.exception.RecursoNoEncontradoException;
 import com.DEVSenior.vetturno.model.Mascota;
 import com.DEVSenior.vetturno.model.Propietario;
 import com.DEVSenior.vetturno.repository.MascotaRepository;
 import com.DEVSenior.vetturno.repository.PropietarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,15 +17,17 @@ import java.util.stream.Collectors;
 @Transactional
 public class MascotaService {
 
-    @Autowired
-    private MascotaRepository mascotaRepository;
-    
-    @Autowired
-    private PropietarioRepository propietarioRepository;
+    private final MascotaRepository mascotaRepository;
+    private final PropietarioRepository propietarioRepository;
+
+    public MascotaService(MascotaRepository mascotaRepository, PropietarioRepository propietarioRepository) {
+        this.mascotaRepository = mascotaRepository;
+        this.propietarioRepository = propietarioRepository;
+    }
 
     public MascotaDTO save(MascotaRequest request) {
         Propietario propietario = propietarioRepository.findById(request.propietarioId())
-                .orElseThrow(() -> new RuntimeException("Propietario no encontrado"));
+                .orElseThrow(() -> new RecursoNoEncontradoException("Propietario con ID " + request.propietarioId() + " no encontrado"));
 
         Mascota mascota = new Mascota(null, request.nombre(), request.especie(), request.raza(), propietario);
         Mascota saved = mascotaRepository.save(mascota);

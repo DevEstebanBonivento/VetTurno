@@ -4,7 +4,6 @@ import com.DEVSenior.vetturno.dto.PropietarioDTO;
 import com.DEVSenior.vetturno.dto.PropietarioRequest;
 import com.DEVSenior.vetturno.model.Propietario;
 import com.DEVSenior.vetturno.repository.PropietarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +14,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class PropietarioService {
 
-    @Autowired
-    private PropietarioRepository propietarioRepository;
+    private final PropietarioRepository propietarioRepository;
+
+    public PropietarioService(PropietarioRepository propietarioRepository) {
+        this.propietarioRepository = propietarioRepository;
+    }
 
     public PropietarioDTO save(PropietarioRequest request) {
         Propietario propietario = new Propietario(null, request.nombre(), request.telefono(), request.email());

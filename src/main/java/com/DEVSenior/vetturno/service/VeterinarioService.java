@@ -4,7 +4,6 @@ import com.DEVSenior.vetturno.dto.VeterinarioDTO;
 import com.DEVSenior.vetturno.dto.VeterinarioRequest;
 import com.DEVSenior.vetturno.model.Veterinario;
 import com.DEVSenior.vetturno.repository.VeterinarioRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +14,11 @@ import java.util.stream.Collectors;
 @Transactional
 public class VeterinarioService {
 
-    @Autowired
-    private VeterinarioRepository veterinarioRepository;
+    private final VeterinarioRepository veterinarioRepository;
+
+    public VeterinarioService(VeterinarioRepository veterinarioRepository) {
+        this.veterinarioRepository = veterinarioRepository;
+    }
 
     public VeterinarioDTO save(VeterinarioRequest request) {
         Veterinario veterinario = new Veterinario(null, request.nombre(), request.especialidad());
