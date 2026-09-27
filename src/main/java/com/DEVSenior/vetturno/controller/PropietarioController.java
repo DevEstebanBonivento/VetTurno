@@ -3,6 +3,7 @@ package com.DEVSenior.vetturno.controller;
 import com.DEVSenior.vetturno.dto.PropietarioDTO;
 import com.DEVSenior.vetturno.dto.PropietarioRequest;
 import com.DEVSenior.vetturno.service.PropietarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class PropietarioController {
     }
 
     @PostMapping
-    public ResponseEntity<PropietarioDTO> create(@RequestBody PropietarioRequest request) {
+    public ResponseEntity<PropietarioDTO> create(@Valid @RequestBody PropietarioRequest request) {
         PropietarioDTO dto = propietarioService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
@@ -40,9 +41,5 @@ public class PropietarioController {
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        propietarioService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+
 }

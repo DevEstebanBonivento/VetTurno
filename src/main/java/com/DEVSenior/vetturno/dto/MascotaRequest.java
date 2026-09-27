@@ -1,10 +1,12 @@
 package com.DEVSenior.vetturno.dto;
 
-
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public record MascotaRequest(
-    String nombre,
-    String especie,
+    @NotBlank(message= "El nombre es obligatorio") String nombre,
+    @NotBlank(message= "La especie es obligatoria") String especie,
     String raza,
-    Long propietarioId
+    @NotNull(message = "El propietarioId es obligatorio") Long propietarioId
+
 ) {}

@@ -3,6 +3,7 @@ package com.DEVSenior.vetturno.controller;
 import com.DEVSenior.vetturno.dto.VeterinarioDTO;
 import com.DEVSenior.vetturno.dto.VeterinarioRequest;
 import com.DEVSenior.vetturno.service.VeterinarioService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class VeterinarioController {
     }
 
     @PostMapping
-    public ResponseEntity<VeterinarioDTO> create(@RequestBody VeterinarioRequest request) {
+    public ResponseEntity<VeterinarioDTO> create(@Valid @RequestBody VeterinarioRequest request) {
         VeterinarioDTO dto = veterinarioService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
@@ -40,9 +41,5 @@ public class VeterinarioController {
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        veterinarioService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+
 }

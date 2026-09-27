@@ -3,6 +3,7 @@ package com.DEVSenior.vetturno.controller;
 import com.DEVSenior.vetturno.dto.MascotaDTO;
 import com.DEVSenior.vetturno.dto.MascotaRequest;
 import com.DEVSenior.vetturno.service.MascotaService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +21,7 @@ public class MascotaController {
     }
 
     @PostMapping
-    public ResponseEntity<MascotaDTO> create(@RequestBody MascotaRequest request) {
+    public ResponseEntity<MascotaDTO> create(@Valid @RequestBody MascotaRequest request) {
         MascotaDTO dto = mascotaService.save(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(dto);
     }
@@ -40,9 +41,5 @@ public class MascotaController {
         return ResponseEntity.ok(dto);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        mascotaService.deleteById(id);
-        return ResponseEntity.noContent().build();
-    }
+
 }

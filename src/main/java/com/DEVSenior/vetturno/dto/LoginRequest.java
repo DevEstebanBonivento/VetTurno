@@ -1,8 +1,8 @@
 package com.DEVSenior.vetturno.dto;
 
-
+import jakarta.validation.constraints.NotBlank;
 
 public record LoginRequest(
-    String email,
-    String password
+        @NotBlank(message = "El email es obligatorio") String email,
+        @NotBlank(message = "La contraseña es obligatoria") String password
 ) {}
