@@ -404,7 +404,8 @@ pueda capturar. El manejador da formato a los errores; no decide permisos. Por e
 **Ejecución siguiendo este README desde cero**
 
 ![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/Parte6/ejecucion-desde-cero.png)
-
+![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/Parte6/ejecucion-desde-cero2.png)
+![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/Parte6/ejecucion-desde-cero3.png)
 *Descripción:* aplicación levantada siguiendo únicamente las instrucciones de este README.
 
 **Matriz de pruebas:** ver la sección "Matriz de pruebas manuales" más arriba.
