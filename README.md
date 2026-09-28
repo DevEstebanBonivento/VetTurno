@@ -397,13 +397,13 @@ pueda capturar. El manejador da formato a los errores; no decide permisos. Por e
 
 **Swagger con la información de VetTurno y el botón Authorize**
 
-![Swagger UI mostrando el título VetTurno y el botón Authorize](evidencias/swagger-authorize.png)
+![Swagger UI mostrando el título VetTurno y el botón Authorize](evidencias/Parte6/swagger-authorize.png)
 
 *Descripción:* Swagger UI con el nombre y la descripción de la API y el botón Authorize visible.
 
 **Ejecución siguiendo este README desde cero**
 
-![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/ejecucion-desde-cero.png)
+![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/Parte6/ejecucion-desde-cero.png)
 
 *Descripción:* aplicación levantada siguiendo únicamente las instrucciones de este README.
 
