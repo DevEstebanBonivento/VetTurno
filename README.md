@@ -2,6 +2,8 @@
 
 API REST para la gestión de citas de **Veterinaria Huellitas**.
 
+**Repositorio:** URL_DEL_REPOSITORIO_AQUI
+
 ## Historia
 
 Veterinaria Huellitas es una clínica que atiende con el doctor Andrés y Paula en recepción. Antes
@@ -121,7 +123,7 @@ Por seguridad, ningún usuario puede auto-asignarse ADMIN desde la API. El proce
 1. Registrar el usuario normalmente por `/api/auth/register` (queda como USER).
 2. Ejecutar en MySQL Workbench:
    ```sql
-   UPDATE usuario SET rol = 'ADMIN' WHERE email = 'admin@huellitas.com';
+   UPDATE usuario SET rol = 'ADMIN' WHERE email = 'marta@huellitas.com';
    ```
 3. Volver a iniciar sesión por `/api/auth/login` — el nuevo token ya incluye el rol ADMIN.
 
@@ -141,27 +143,275 @@ de cada petición.
 | # | Escenario | Resultado esperado | Resultado obtenido |
 |---|---|---|---|
 | 1 | App inicia con MySQL disponible | Servidor activo | ✅ |
-| 2 | Registro válido | 200/201 + token, password hasheada | ✅ |
-| 3 | Registro con email inválido y clave corta | 400 con errores por campo | ✅ |
+| 2 | Registro válido | 200/201 + token, password hasheada | ✅ (201) |
+| 3 | Registro con email inválido y clave corta | 400 con errores por campo | ✅ (400) |
 | 4 | Login con credenciales válidas | 200 + JWT | ✅ |
 | 5 | GET /api/citas sin token | Acceso rechazado | ✅ (403) |
-| 6 | POST /api/veterinarios con USER | 403 Forbidden | ✅ |
-| 7 | POST /api/veterinarios con ADMIN | 201 y veterinario persistido | ✅ |
-| 8 | Creación válida de propietario | 201 y DTO sin colecciones anidadas | ✅ |
-| 9 | Creación de mascota con propietario existente | 201 y relación correcta | ✅ |
-| 10 | Mascota con propietario inexistente | 400 controlado; no se inserta fila | ✅ |
-| 11 | Cita futura con referencias válidas | 201 y cita persistida | ✅ |
-| 12 | Cita con fecha pasada | 400 con mensaje claro | ✅ |
-| 13 | Segundo intento con mismo veterinario y horario | 400; se conserva una sola cita | ✅ |
-| 14 | Filtro de citas por veterinario | 200 y solo coincidencias | ✅ |
-| 15 | Reinicio y prueba desde Swagger con Authorize | Datos persisten y flujo protegido funciona | ✅ |
-## Evidencias
+| 6 | POST /api/veterinarios con USER | 403 Forbidden | ✅ (403) |
+| 7 | POST /api/veterinarios con ADMIN | 201 y veterinario persistido | ✅ (201) |
+| 8 | Creación válida de propietario | 201 y DTO sin colecciones anidadas | ✅ (201) |
+| 9 | Creación de mascota con propietario existente | 201 y relación correcta | ✅ (201) |
+| 10 | Mascota con propietario inexistente | 400 controlado; no se inserta fila | ✅ (400) |
+| 11 | Cita futura con referencias válidas | 201 y cita persistida | ✅ (201) |
+| 12 | Cita con fecha pasada | 400 con mensaje claro | ✅ (400) |
+| 13 | Segundo intento con mismo veterinario y horario | 400; se conserva una sola cita | ✅ (400) |
+| 14 | Filtro de citas por veterinario | 200 y solo coincidencias | ✅ (200) |
+| 15 | Reinicio y prueba desde Swagger con Authorize | Datos persisten y flujo protegido funciona | ✅ (200) |
 
-### Swagger con Authorize
-![Swagger UI con VetTurno y botón Authorize](evidencias/swagger-authorize.png)
+---
 
-### Ejecución desde cero siguiendo este README
-![Ejecución exitosa del proyecto](evidencias/ejecucion-desde-cero.png)
+## Evidencias por parte
+
+<!-- Reemplaza cada ruta de imagen por la ruta real de tu captura. La línea "Descripción" acompaña
+     cada captura (accesibilidad): ajústala si tu captura muestra algo distinto. -->
+
+### Parte 1 — Preparar el proyecto
+
+**Captura del servidor iniciando y árbol de paquetes**
+
+![Consola de IntelliJ con el mensaje Started VetTurnoApplication y el árbol de paquetes del proyecto](evidencias/Parte1/servidor-iniciado.png)
+
+*Descripción:* consola mostrando que Spring Boot inició correctamente y, junto a ella, los paquetes
+model, repository, service, controller, dto, security, config y exception.
+
+**Enlace al commit inicial:** https://github.com/DevEstebanBonivento/VetTurno/commit/5e675d47a7e45f6cd4352a17961e2ca7bedbf193
+
+**Diferencia entre `pom.xml` y la clase principal**
+
+El `pom.xml` es el archivo de configuración de Maven: dice cómo se llama el proyecto (groupId,
+artifactId, versión), qué versión de Java usa, qué versión de Spring Boot hereda y qué dependencias
+necesita (JPA, Security, MySQL, JWT, Swagger…), además de cómo se construye. Es la lista de lo que el
+proyecto necesita para existir y compilar.
+
+La clase principal (`VetTurnoApplication`) es el punto de entrada: tiene `@SpringBootApplication` y el
+método `main`. Al ejecutarla, Spring Boot levanta el servidor embebido, aplica la autoconfiguración y
+busca los componentes (controllers, services, repositories) dentro de su paquete y subpaquetes. En
+resumen: el `pom.xml` define *con qué* se construye el proyecto; la clase principal es *lo que lo
+enciende*.
+
+---
+
+### Parte 2 — Modelar la información de Huellitas
+
+**Diagrama del modelo**
+
+```mermaid
+erDiagram
+    PROPIETARIO ||--o{ MASCOTA : "tiene"
+    MASCOTA ||--o{ CITA : "recibe"
+    VETERINARIO ||--o{ CITA : "atiende"
+    PROPIETARIO {
+        Long id
+        String nombre
+        String telefono
+        String email
+    }
+    MASCOTA {
+        Long id
+        String nombre
+        String especie
+        String raza
+        Long propietario_id FK
+    }
+    VETERINARIO {
+        Long id
+        String nombre
+        String especialidad
+    }
+    CITA {
+        Long id
+        LocalDateTime fechaHora
+        String motivo
+        Long mascota_id FK
+        Long veterinario_id FK
+    }
+    USUARIO {
+        Long id
+        String email
+        String password
+        String rol
+    }
+```
+
+**Captura del esquema y tablas en Workbench**
+
+![MySQL Workbench mostrando las tablas propietario, mascota, veterinario, cita y usuario del esquema vetturno](evidencias/Parte2/esquema-workbench.png)
+
+*Descripción:* panel de esquemas de Workbench con las cinco tablas creadas por Hibernate, incluyendo
+las llaves foráneas en `mascota` y `cita`.
+
+![Consola de la aplicación con las sentencias create table ejecutadas por Hibernate](evidencias/Parte2/sql-hibernate.png)
+
+*Descripción:* MySQL Workbench mostrando el resultado de una consulta a `information_schema` con las
+tres llaves foráneas del esquema `vetturno`: `cita.mascota_id`, `cita.veterinario_id` y
+`mascota.propietario_id`, cada una apuntando a su tabla referenciada.
+
+**Decisión sobre la navegación entre entidades**
+
+Las relaciones son unidireccionales: `Mascota` conoce a su `Propietario`, y `Cita` conoce a su
+`Mascota` y a su `Veterinario`, pero no al revés. Las llaves foráneas quedan en el lado "muchos"
+(`mascota.propietario_id`, `cita.mascota_id`, `cita.veterinario_id`), porque es la tabla con más
+registros la que guarda la referencia. No se navega de `Propietario` a sus mascotas porque el contrato
+no lo necesita y evita la recursión JSON; si hiciera falta, se resuelve con una consulta en el
+repositorio.
+
+**Diferencia entre JPA, Hibernate y JpaRepository**
+
+- **JPA** es la especificación (el estándar): define cómo se mapean objetos Java a tablas mediante
+  anotaciones como `@Entity`, `@ManyToOne` o `@Id`. Por sí sola no hace nada.
+- **Hibernate** es la implementación de JPA: es quien realmente genera el SQL, habla con MySQL y crea
+  las tablas.
+- **JpaRepository** es una interfaz de Spring Data que nos da operaciones listas (`save`, `findAll`,
+  `findById`, `deleteById`) y consultas derivadas por nombre, sin escribir SQL.
+
+---
+
+### Parte 3 — Flujo REST por capas
+
+**Creación y consulta de propietario, mascota y veterinario**
+
+![Postman con POST /api/propietarios respondiendo 201 y el propietario creado](evidencias/Parte3/propietario-post.png)
+
+*Descripción:* petición de creación de propietario con respuesta 201 y el DTO con id, nombre, teléfono y email.
+
+![Postman con POST /api/mascotas respondiendo 201 con propietarioId y propietarioNombre](evidencias/Parte3/mascota-post.png)
+
+*Descripción:* mascota creada con respuesta plana que incluye `propietarioId` y `propietarioNombre`, sin anidar al propietario.
+
+![Postman con POST /api/veterinarios respondiendo 201 con token de ADMIN](evidencias/Parte3/veterinario-post.png)
+
+*Descripción:* veterinario creado con éxito usando el token de un usuario ADMIN.
+
+![Postman con los GET de propietario](evidencias/Parte3/consultasPropietario-get.png)
+![Postman con los GET de mascota](evidencias/Parte3/consultasMascota-get.png)
+![Postman con los GET de veterinario](evidencias/Parte3/consultasVeterinario-get.png)
+
+*Descripción:* consultas GET de las tres entidades devolviendo sus listas mediante DTO.
+
+**Datos antes y después de reiniciar el servidor**
+
+![Postman con los GET de propietario](evidencias/Parte3/consultasPropietario-get.png)
+![Postman con los GET de mascota](evidencias/Parte3/consultasMascota-get.png)
+![Postman con los GET de veterinario](evidencias/Parte3/consultasVeterinario-get.png)
+
+![Postman con los GET de propietario](evidencias/Parte3/consultasPropietarioReinicio-get.png)
+![Postman con los GET de mascota](evidencias/Parte3/consultasMascotaReinicio-get.png)
+![Postman con los GET de veterinario](evidencias/Parte3/consultasVeterinarioReinicio-get.png)
+
+*Descripción:* la misma consulta devuelve los mismos registros antes y después del reinicio, lo que
+confirma la persistencia en MySQL (`ddl-auto=update`).
+
+**Qué evita `MascotaDTO` frente a devolver `Mascota` directamente**
+
+Evita exponer la estructura interna de la base de datos y, sobre todo, la recursión JSON: si se
+devolviera la entidad con su `Propietario` completo, y este tuviera referencia de vuelta, Jackson
+entraría en un ciclo infinito al convertir a JSON. El DTO devuelve solo lo necesario (`propietarioId`
+y `propietarioNombre`) en una respuesta plana.
+
+---
+
+### Parte 4 — Agendar citas sin cruces
+
+**Cita creada con 201**
+
+![Postman con POST /api/citas respondiendo 201](evidencias/Parte4/cita-creada.png)
+
+*Descripción:* cita futura creada con mascota y veterinario existentes, respuesta 201 con datos planos.
+
+**Fecha pasada y horario duplicado**
+
+![Postman con POST /api/citas con fecha pasada respondiendo 400](evidencias/Parte4/cita-fecha-pasada.png)
+
+*Descripción:* intento de agendar una cita con fecha en el pasado, rechazado con 400.
+
+![Postman con POST /api/citas repetida para el mismo veterinario y hora respondiendo 400](evidencias/Parte4/cita-duplicada.png)
+
+*Descripción:* segundo intento con el mismo veterinario y la misma fecha y hora, rechazado con 400.
+
+**Agenda filtrada por veterinario**
+
+![Postman con GET /api/citas/veterinario/1 devolviendo solo las citas de ese veterinario](evidencias/Parte4/agenda-por-veterinario.png)
+
+*Descripción:* consulta filtrada que devuelve únicamente las citas del veterinario indicado.
+
+---
+
+### Parte 5 — Seguridad con JWT y roles
+
+**Hash de la contraseña en MySQL**
+
+![Workbench con SELECT email, password FROM usuario mostrando el hash BCrypt](evidencias/Parte5/hash-mysql.png)
+
+*Descripción:* la columna `password` contiene un hash BCrypt ilegible; la contraseña original no se
+almacena en ningún lado.
+
+**Login con token parcialmente oculto**
+
+![Respuesta del login con el token recortado u ocultado en su mayor parte](evidencias/Parte5/login-token.png)
+
+*Descripción:* respuesta 200 del login con el campo `token` parcialmente oculto.
+
+**POST /api/veterinarios: USER → 403, ADMIN → 201**
+
+![Postman con POST /api/veterinarios usando token de USER respondiendo 403](evidencias/Parte5/veterinario-user-403.png)
+
+![Postman con POST /api/veterinarios usando token de ADMIN respondiendo 201](evidencias/Parte5/veterinario-admin-201.png)
+
+*Descripción:* la misma petición es rechazada con 403 para un USER y aceptada con 201 para un ADMIN.
+
+**Autenticación vs. autorización (caso del 403)**
+
+*Autenticar* es comprobar quién eres: el login verifica email y contraseña y entrega un JWT.
+*Autorizar* es decidir qué puedes hacer con esa identidad. Paula está autenticada (su token es válido),
+pero su rol es USER, y crear veterinarios exige ADMIN; por eso recibe 403: el sistema sabe quién es,
+pero no le da permiso.
+
+---
+
+### Parte 6 — Validaciones y errores
+
+**400 con varios errores de campos**
+
+![Postman con registro inválido respondiendo 400 con errores por campo para email y password](evidencias/Parte6/validacion-campos.png)
+
+*Descripción:* registro con email inválido y contraseña corta; la respuesta 400 indica el mensaje de
+cada campo que falló.
+
+**400 por cruce de horario**
+
+![Postman con cita duplicada respondiendo 400 con mensaje de horario ocupado](evidencias/Parte6/cruce-horario.png)
+
+*Descripción:* error de regla de negocio por horario ocupado, con el mismo formato de respuesta de error.
+
+**Por qué el manejador global no reemplaza las reglas de seguridad**
+
+El `GlobalExceptionHandler` solo traduce a respuestas HTTP las excepciones que ocurren *dentro* de los
+controllers y services (validaciones, recursos no encontrados, errores inesperados). La seguridad actúa
+antes: el filtro JWT y `SecurityConfig` deciden quién puede llegar al controller, y una petición
+rechazada allí (por falta de token o de rol) nunca llega a lanzar una excepción que el manejador
+pueda capturar. El manejador da formato a los errores; no decide permisos. Por eso hacen falta ambos.
+
+---
+
+### Parte 7 — Documentar, probar y publicar
+
+**Swagger con la información de VetTurno y el botón Authorize**
+
+![Swagger UI mostrando el título VetTurno y el botón Authorize](evidencias/swagger-authorize.png)
+
+*Descripción:* Swagger UI con el nombre y la descripción de la API y el botón Authorize visible.
+
+**Ejecución siguiendo este README desde cero**
+
+![Consola mostrando la aplicación iniciada tras seguir las instrucciones del README](evidencias/ejecucion-desde-cero.png)
+
+*Descripción:* aplicación levantada siguiendo únicamente las instrucciones de este README.
+
+**Matriz de pruebas:** ver la sección "Matriz de pruebas manuales" más arriba.
+
+**Repositorio GitHub:** URL_DEL_REPOSITORIO_AQUI
+
+---
 
 ## Nota sobre uso de IA
 
