@@ -2,7 +2,7 @@
 
 API REST para la gestión de citas de **Veterinaria Huellitas**.
 
-**Repositorio:** URL_DEL_REPOSITORIO_AQUI
+
 
 ## Historia
 
@@ -409,7 +409,7 @@ pueda capturar. El manejador da formato a los errores; no decide permisos. Por e
 
 **Matriz de pruebas:** ver la sección "Matriz de pruebas manuales" más arriba.
 
-**Repositorio GitHub:** URL_DEL_REPOSITORIO_AQUI
+
 
 ---
 
